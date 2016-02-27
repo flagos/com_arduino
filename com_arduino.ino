@@ -1,17 +1,4 @@
-
-
-
-void reset(void) {
-}
-
-
-void setup() {
-  Serial.begin(115200);
-  pinMode(13, OUTPUT);  
-
-  reset();
-}
-
+#define DATA_BUFFER_LENGTH 128
 
 
 typedef enum {
@@ -24,6 +11,17 @@ typedef enum {
   WATER_FLOW = 0x42  
 } opcode_t;
 
+
+void reset(void) {
+}
+
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(13, OUTPUT);  
+
+  reset();
+}
 
 
 void set_pin(byte* data, byte datalen) {
@@ -51,7 +49,7 @@ void loop() {
   /*  check if data has been sent from the computer: */
   /* read the most recent byte */
 
-  byte data[128];
+  byte data[DATA_BUFFER_LENGTH];
   byte opcode  = 0;
   byte datalen = 0;
   byte status  = 0;
@@ -62,10 +60,10 @@ void loop() {
     datalen -= 0x30;
   }
   
-  if (status) 
+  if (status && datalen < DATA_BUFFER_LENGTH) 
     status = Serial.readBytes((char*)&data, datalen);
   
-  if (status) {  
+  if (status && datalen < DATA_BUFFER_LENGTH) {  
     switch(opcode){
       case IS_ALIVE: Serial.write(0x01);
       break;
